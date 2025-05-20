@@ -43,8 +43,8 @@ class UserRegistrationForm(forms.ModelForm):
         if not password:
             raise forms.ValidationError("Password is required.")
         
-        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$', password):
-            raise forms.ValidationError('Password must be at least 8 characters and include at least one letter and one number.')
+        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$', password):
+            raise forms.ValidationError('Password must be at least 6 characters and include at least one letter and one number.')
         
         return password
     

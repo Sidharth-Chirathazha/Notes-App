@@ -2,8 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 from .forms import UserRegistrationForm
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def home_view(request):
@@ -14,7 +18,7 @@ def home_view(request):
 def register_view(request):
 
     if request.user.is_authenticated:
-        pass
+         return redirect('notes')
 
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -22,6 +26,8 @@ def register_view(request):
             user = form.save()
             messages.success(request, 'Registration successful. You can now log in.')
             return redirect('login')
+        else:
+            logger.error(f"Registration failed: {form.errors}")
     else:
         form = UserRegistrationForm()
 
@@ -31,7 +37,7 @@ def register_view(request):
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     if request.user.is_authenticated:
-        pass
+         return redirect('notes')
 
     if request.method == 'POST':
         user_email = request.POST.get('user_email')
@@ -55,5 +61,6 @@ def logout_view(request):
 
 
 @login_required
+@never_cache
 def notes_view(request):
     return render(request, 'notes.html')
