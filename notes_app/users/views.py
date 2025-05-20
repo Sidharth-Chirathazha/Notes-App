@@ -60,7 +60,3 @@ def logout_view(request):
     return redirect('home')
 
 
-@login_required
-@never_cache
-def notes_view(request):
-    return render(request, 'notes.html')

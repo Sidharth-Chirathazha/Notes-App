@@ -45,14 +45,11 @@
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         
-        // Error message elements
         const emailError = document.getElementById('email-error');
         const passwordError = document.getElementById('password-error');
         
-        // Email regex
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         
-        // Function to show error
         function showError(input, errorElement, message) {
             input.classList.add('error');
             errorElement.textContent = message;
@@ -60,13 +57,11 @@
             return false;
         }
         
-        // Function to clear error
         function clearError(input, errorElement) {
             input.classList.remove('error');
             errorElement.style.display = 'none';
         }
         
-        // Validate email
         function validateEmail() {
             clearError(emailInput, emailError);
             
@@ -81,7 +76,6 @@
             return true;
         }
         
-        // Validate password
         function validatePassword() {
             clearError(passwordInput, passwordError);
             
@@ -92,11 +86,9 @@
             return true;
         }
         
-        // Add blur event listeners
         emailInput.addEventListener('blur', validateEmail);
         passwordInput.addEventListener('blur', validatePassword);
         
-        // Form submission validation
         form.addEventListener('submit', function(e) {
             const isEmailValid = validateEmail();
             const isPasswordValid = validatePassword();

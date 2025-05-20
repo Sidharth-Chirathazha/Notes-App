@@ -1,10 +1,89 @@
 {% extends 'base.html' %}
-
 {% block title %}My Notes - Notes App{% endblock %}
+{% block extra_css %}
+<style>
+    .notes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    .note-card {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    
+    .note-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .note-title {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .note-preview {
+        color: #666;
+        font-size: 0.9rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 90%;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .close-btn {
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #666;
+    }
+    
+    .btn-container {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div>
-    <h1 style="color: var(--primary-color); margin-bottom: 1.5rem;">My Notes</h1>
+<div class="main-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h1 style="color: var(--primary-color);">My Notes</h1>
+        <button class="btn btn-primary" onclick="openModal('addNoteModal')">Add Note</button>
+    </div>
     
     {% if messages %}
         {% for message in messages %}
@@ -14,11 +93,58 @@
         {% endfor %}
     {% endif %}
     
-    <p>Welcome, {{ user.user_name }}! This is where your notes will appear.</p>
+    {% if notes %}
+        <div class="notes-grid">
+            {% for note in notes %}
+                <div class="note-card" onclick="window.location.href='{% url 'note_detail' note.note_id %}'">
+                    <h3 class="note-title">{{ note.note_title }}</h3>
+                    <p class="note-preview">{{ note.note_content|truncatewords:20 }}</p>
+                    <p style="color: #999; font-size: 0.8rem; margin-top: 0.5rem;">
+                        Last updated: {{ note.last_update|date:"M d, Y" }}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: #666; font-style: italic;">No notes yet. Create your first note!</p>
+    {% endif %}
     
-    <!-- Note: Further implementation will be added later -->
-    <div style="margin-top: 2rem;">
-        <p style="color: #666; font-style: italic;">Note functionality to be implemented in future steps.</p>
+    <!-- Add Note Modal -->
+    <div id="addNoteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Note</h2>
+                <span class="close-btn" onclick="closeModal('addNoteModal')">&times;</span>
+            </div>
+            <form method="POST" action="{% url 'add_note' %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="btn-container">
+                    <button type="submit" class="btn btn-primary">Save Note</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal('addNoteModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+    
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+    
+
+    window.onclick = function(event) {
+        const modal = document.querySelector('.modal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
 {% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}{{ note.note_title }} - Notes App{% endblock %}
+{% block extra_css %}
+<style>
+    .note-detail {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-top: 1rem;
+    }
+    
+    .note-detail h2 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .note-content {
+        white-space: pre-wrap;
+        margin-bottom: 1.5rem;
+    }
+    
+    .note-meta {
+        color: #999;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 90%;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .close-btn {
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #666;
+    }
+    
+    .btn-container {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-delete {
+        background-color: var(--error-color);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+    }
+    
+    .btn-delete:hover {
+        background-color: #c0392b;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="{% if message.tags == 'success' %}success-message{% else %}error-alert{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    {% if note %}
+        <div class="note-detail">
+            <h2>{{ note.note_title }}</h2>
+            <div class="note-meta">
+                <p>Created: {{ note.create_on|date:"M d, Y" }}</p>
+                <p>Last updated: {{ note.last_update|date:"M d, Y" }}</p>
+            </div>
+            <div class="note-content">{{ note.note_content }}</div>
+            <div class="btn-container">
+                <button class="btn btn-primary" onclick="openModal('editNoteModal')">Edit Note</button>
+                <button class="btn btn-delete" onclick="confirmDelete('{% url 'delete_note' note.note_id %}')">Delete Note</button>
+                <a href="{% url 'notes' %}" class="btn btn-outline">Back to Notes</a>
+            </div>
+        </div>
+        
+        <!-- Edit Note Modal -->
+        <div id="editNoteModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit Note</h2>
+                    <span class="close-btn" onclick="closeModal('editNoteModal')">×</span>
+                </div>
+                <form method="POST" action="{% url 'edit_note' note.note_id %}">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="btn-container">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-outline" onclick="closeModal('editNoteModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <p style="color: var(--error-color);">Note not found or you don't have permission to view it.</p>
+        <a href="{% url 'notes' %}" class="btn btn-outline">Back to Notes</a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'block';
+        } else {
+            console.error('Modal not found:', modalId);
+        }
+    }
+    
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'none';
+        } else {
+            console.error('Modal not found:', modalId);
+        }
+    }
+    
+    function confirmDelete(url) {
+        if (confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+            window.location.href = url;
+        }
+    }
+    
+    window.onclick = function(event) {
+        const modal = document.querySelector('.modal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}
