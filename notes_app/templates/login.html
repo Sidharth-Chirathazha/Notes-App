@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Notes App{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="form-title">Login to Your Account</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="{% if message.tags == 'success' %}success-message{% else %}error-alert{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form id="login-form" method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" id="email" name="user_email" class="form-input" required>
+            <span class="error-message" id="email-error"></span>
+        </div>
+        
+        <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-input" required>
+            <span class="error-message" id="password-error"></span>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+    </form>
+    
+    <p style="text-align: center; margin-top: 1rem;">
+        Don't have an account? <a href="{% url 'register' %}" style="color: var(--primary-color);">Sign up</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('login-form');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        
+        // Error message elements
+        const emailError = document.getElementById('email-error');
+        const passwordError = document.getElementById('password-error');
+        
+        // Email regex
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        
+        // Function to show error
+        function showError(input, errorElement, message) {
+            input.classList.add('error');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            return false;
+        }
+        
+        // Function to clear error
+        function clearError(input, errorElement) {
+            input.classList.remove('error');
+            errorElement.style.display = 'none';
+        }
+        
+        // Validate email
+        function validateEmail() {
+            clearError(emailInput, emailError);
+            
+            if (emailInput.value.trim() === '') {
+                return showError(emailInput, emailError, 'Email address is required.');
+            }
+            
+            if (!emailRegex.test(emailInput.value)) {
+                return showError(emailInput, emailError, 'Please enter a valid email address.');
+            }
+            
+            return true;
+        }
+        
+        // Validate password
+        function validatePassword() {
+            clearError(passwordInput, passwordError);
+            
+            if (passwordInput.value === '') {
+                return showError(passwordInput, passwordError, 'Password is required.');
+            }
+            
+            return true;
+        }
+        
+        // Add blur event listeners
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+        
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+            
+            if (!(isEmailValid && isPasswordValid)) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}

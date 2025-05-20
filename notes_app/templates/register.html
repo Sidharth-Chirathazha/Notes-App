@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Notes App{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="form-title">Create an Account</h2>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="{% if message.tags == 'success' %}success-message{% else %}error-alert{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form id="registration-form" method="post" action="{% url 'register' %}">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" name="user_name" class="form-input" value="{{ form.user_name.value|default:'' }}">
+            <span class="error-message" id="username-error">
+                {% if form.user_name.errors %}
+                    {{ form.user_name.errors.0 }}
+                {% endif %}
+            </span>
+        </div>
+        
+        <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" id="email" name="user_email" class="form-input" value="{{ form.user_email.value|default:'' }}">
+            <span class="error-message" id="email-error">
+                {% if form.user_email.errors %}
+                    {{ form.user_email.errors.0 }}
+                {% endif %}
+            </span>
+        </div>
+        
+        <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-input">
+            <span class="error-message" id="password-error">
+                {% if form.password.errors %}
+                    {{ form.password.errors.0 }}
+                {% endif %}
+            </span>
+        </div>
+        
+        <div class="form-group">
+            <label for="password2" class="form-label">Confirm Password</label>
+            <input type="password" id="password2" name="password2" class="form-input">
+            <span class="error-message" id="password2-error">
+                {% if form.password2.errors %}
+                    {{ form.password2.errors.0 }}
+                {% endif %}
+            </span>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+    </form>
+    
+    <p style="text-align: center; margin-top: 1rem;">
+        Already have an account? <a href="{% url 'login' %}" style="color: var(--primary-color);">Log in</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('registration-form');
+        const usernameInput = document.getElementById('username');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const password2Input = document.getElementById('password2');
+        
+        // Error message elements
+        const usernameError = document.getElementById('username-error');
+        const emailError = document.getElementById('email-error');
+        const passwordError = document.getElementById('password-error');
+        const password2Error = document.getElementById('password2-error');
+        
+        // Regular expressions for validation
+        const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+        
+        // Function to show error
+        function showError(input, errorElement, message) {
+            input.classList.add('error');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            return false;
+        }
+        
+        // Function to clear error
+        function clearError(input, errorElement) {
+            input.classList.remove('error');
+            errorElement.style.display = 'none';
+        }
+        
+        // Validate username
+        function validateUsername() {
+            clearError(usernameInput, usernameError);
+            
+            if (usernameInput.value.trim() === '') {
+                return showError(usernameInput, usernameError, 'Username is required.');
+            }
+            
+            if (!usernameRegex.test(usernameInput.value)) {
+                return showError(usernameInput, usernameError, 'Username must be 3-20 characters and can contain letters, numbers, and underscores.');
+            }
+            
+            return true;
+        }
+        
+        // Validate email
+        function validateEmail() {
+            clearError(emailInput, emailError);
+            
+            if (emailInput.value.trim() === '') {
+                return showError(emailInput, emailError, 'Email address is required.');
+            }
+            
+            if (!emailRegex.test(emailInput.value)) {
+                return showError(emailInput, emailError, 'Please enter a valid email address.');
+            }
+            
+            return true;
+        }
+        
+        // Validate password
+        function validatePassword() {
+            clearError(passwordInput, passwordError);
+            
+            if (passwordInput.value === '') {
+                return showError(passwordInput, passwordError, 'Password is required.');
+            }
+            
+            if (!passwordRegex.test(passwordInput.value)) {
+                return showError(passwordInput, passwordError, 'Password must be at least 8 characters and include at least one letter and one number.');
+            }
+            
+            return true;
+        }
+        
+        // Validate password confirmation
+        function validatePassword2() {
+            clearError(password2Input, password2Error);
+            
+            if (password2Input.value === '') {
+                return showError(password2Input, password2Error, 'Please confirm your password.');
+            }
+            
+            if (passwordInput.value !== password2Input.value) {
+                return showError(password2Input, password2Error, 'Passwords do not match.');
+            }
+            
+            return true;
+        }
+        
+        // Add blur event listeners
+        usernameInput.addEventListener('blur', validateUsername);
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+        password2Input.addEventListener('blur', validatePassword2);
+        
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            const isUsernameValid = validateUsername();
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+            const isPassword2Valid = validatePassword2();
+            
+            if (!(isUsernameValid && isEmailValid && isPasswordValid && isPassword2Valid)) {
+                e.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock %}

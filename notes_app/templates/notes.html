@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}My Notes - Notes App{% endblock %}
+
+{% block content %}
+<div>
+    <h1 style="color: var(--primary-color); margin-bottom: 1.5rem;">My Notes</h1>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="{% if message.tags == 'success' %}success-message{% else %}error-alert{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <p>Welcome, {{ user.user_name }}! This is where your notes will appear.</p>
+    
+    <!-- Note: Further implementation will be added later -->
+    <div style="margin-top: 2rem;">
+        <p style="color: #666; font-style: italic;">Note functionality to be implemented in future steps.</p>
+    </div>
+</div>
+{% endblock %}
