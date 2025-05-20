@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
-from django.http import JsonResponse
 from django.contrib import messages
 from .models import Note
 from .forms import NoteForm
